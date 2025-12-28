@@ -7,14 +7,13 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { User } from '../users/user.entity';
 import { MailModule } from '../mail/mail.module';
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRES },
+      signOptions: { expiresIn: Number(process.env.JWT_EXPIRES) }, // TODO: onley for run!
     }),
     MailModule,
   ],
