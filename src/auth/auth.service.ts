@@ -46,7 +46,7 @@ export class AuthService {
     if (!user) throw new BadRequestException('Invalid token');
 
     user.isEmailVerified = true;
-    user.emailVerificationToken = ""; // null
+    user.emailVerificationToken = ''; // null
     await this.usersRepo.save(user);
 
     return { message: 'Email verified successfully' };
@@ -58,7 +58,6 @@ export class AuthService {
 
     if (!user.isEmailVerified)
       throw new ForbiddenException('Email not verified');
-
 
     const match = await bcrypt.compare(dto.password, user.password);
     if (!match) throw new UnauthorizedException();
