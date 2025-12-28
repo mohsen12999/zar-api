@@ -101,7 +101,7 @@ Response:
 
 #### Verify Email
 ```http
-GET /users/verify-email?token=verification-token
+GET /users/verify-email?code=12345
 ```
 
 Response:
@@ -111,6 +111,8 @@ Response:
   "message": "Email verified successfully"
 }
 ```
+
+Note: After registration, a 5-digit verification code will be sent to the user's email. Use this code to verify the email address. The code expires in 24 hours.
 
 #### Login
 ```http

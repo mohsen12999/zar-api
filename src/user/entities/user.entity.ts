@@ -21,10 +21,10 @@ export class User {
   isEmailVerified: boolean;
 
   @Column({ nullable: true })
-  emailVerificationToken: string;
+  emailVerificationCode: string;
 
   @Column({ type: 'datetime', nullable: true })
-  emailVerificationTokenExpiry: Date;
+  emailVerificationCodeExpiry: Date;
 
   @CreateDateColumn()
   createdAt: Date;

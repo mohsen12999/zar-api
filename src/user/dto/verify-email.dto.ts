@@ -1,8 +1,9 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, Length } from 'class-validator';
 
 export class VerifyEmailDto {
   @IsString()
   @IsNotEmpty()
-  token: string;
+  @Length(5, 5, { message: 'Verification code must be exactly 5 digits' })
+  code: string;
 }
 

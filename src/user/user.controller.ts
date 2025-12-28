@@ -35,7 +35,7 @@ export class UserController {
 
   @Get('verify-email')
   async verifyEmail(@Query() verifyEmailDto: VerifyEmailDto) {
-    const result = await this.userService.verifyEmail(verifyEmailDto.token);
+    const result = await this.userService.verifyEmail(verifyEmailDto.code);
     return result;
   }
 }

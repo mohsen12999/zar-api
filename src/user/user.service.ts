@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
 import { User } from './entities/user.entity';
 import { EmailService } from '../email/email.service';
 
@@ -16,24 +15,25 @@ export class UserService {
 
   async create(email: string, password: string): Promise<User> {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const verificationToken = uuidv4();
-    const tokenExpiry = new Date();
-    tokenExpiry.setHours(tokenExpiry.getHours() + 24); // Token expires in 24 hours
+    // Generate random 5-digit verification code
+    const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
+    const codeExpiry = new Date();
+    codeExpiry.setHours(codeExpiry.getHours() + 24); // Code expires in 24 hours
 
     const user = this.userRepository.create({
       email,
       password: hashedPassword,
-      emailVerificationToken: verificationToken,
-      emailVerificationTokenExpiry: tokenExpiry,
+      emailVerificationCode: verificationCode,
+      emailVerificationCodeExpiry: codeExpiry,
       isEmailVerified: false,
     });
 
     const savedUser = await this.userRepository.save(user);
 
-    // Send verification email
+    // Send verification email with code
     await this.emailService.sendVerificationEmail(
       savedUser.email,
-      verificationToken,
+      verificationCode,
     );
 
     return savedUser;
@@ -47,13 +47,13 @@ export class UserService {
     return this.userRepository.findOne({ where: { id } });
   }
 
-  async verifyEmail(token: string): Promise<{ success: boolean; message: string }> {
+  async verifyEmail(code: string): Promise<{ success: boolean; message: string }> {
     const user = await this.userRepository.findOne({
-      where: { emailVerificationToken: token },
+      where: { emailVerificationCode: code },
     });
 
     if (!user) {
-      throw new NotFoundException('Invalid verification token');
+      throw new NotFoundException('Invalid verification code');
     }
 
     if (user.isEmailVerified) {
@@ -63,16 +63,16 @@ export class UserService {
       };
     }
 
-    if (user.emailVerificationTokenExpiry < new Date()) {
+    if (user.emailVerificationCodeExpiry < new Date()) {
       return {
         success: false,
-        message: 'Verification token has expired',
+        message: 'Verification code has expired',
       };
     }
 
     user.isEmailVerified = true;
-    user.emailVerificationToken = null;
-    user.emailVerificationTokenExpiry = null;
+    user.emailVerificationCode = null;
+    user.emailVerificationCodeExpiry = null;
     await this.userRepository.save(user);
 
     return {
