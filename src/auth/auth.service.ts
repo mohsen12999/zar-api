@@ -45,9 +45,8 @@ export class AuthService {
     const user = await this.usersRepo.findOne({ where: { emailVerificationToken: token } });
     if (!user) throw new BadRequestException('Invalid token');
 
-
     user.isEmailVerified = true;
-    user.emailVerificationToken = null;
+    user.emailVerificationToken = ""; // null
     await this.usersRepo.save(user);
 
     return { message: 'Email verified successfully' };
